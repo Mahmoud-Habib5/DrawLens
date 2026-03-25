@@ -1,0 +1,87 @@
+Improve and enhance the existing Flutter mobile application "Drawing Assistant using Camera Overlay".
+
+Focus on fixing usability issues and adding advanced drawing-assistance features.
+
+-------------------------------------
+1. FIX: Image Transform Controls (Zoom & Rotation)
+-------------------------------------
+Problem:
+Current zoom and rotation gestures are too sensitive and hard to control. The image rotates too fast and causes poor user experience.
+
+Solution:
+- Replace free gesture rotation/zoom with visual control handles:
+  - Add draggable corner handles around the image for resizing (scale)
+  - Add a dedicated rotation handle (icon/button) outside the image boundary
+- Allow precise and smooth transformations
+- Add constraints to prevent extreme rotation speed
+- Optional: show a bounding box when the image is selected
+
+Goal:
+Make image manipulation stable, accurate, and beginner-friendly.
+
+-------------------------------------
+2. FIX: Lock Mode UI Behavior
+-------------------------------------
+Problem:
+"Position Locked" text remains permanently on screen and UI looks cluttered.
+
+Solution:
+- Show "Position Locked" as a temporary toast/snackbar message
+- Automatically hide it after 2 seconds
+- When Lock Mode is activated:
+  - Hide all UI controls (buttons, sliders, overlays)
+  - Keep only camera + overlay visible
+- When unlocking:
+  - Restore UI controls smoothly with animation
+
+Goal:
+Provide a clean, distraction-free drawing experience.
+
+-------------------------------------
+3. NEW FEATURE: Video Recording Mode
+-------------------------------------
+- Add a button to start/stop video recording while drawing
+- Record only the camera feed (real-world drawing), NOT the overlay image
+- Save the video to device storage
+- Ensure smooth recording performance without lag
+
+Optional:
+- Add recording indicator (red dot + timer)
+
+-------------------------------------
+4. NEW FEATURE: Flash Control
+-------------------------------------
+- Add a toggle button to turn camera flash ON/OFF
+- Ensure it works during both preview and recording
+- Reflect current flash state clearly in UI
+
+-------------------------------------
+5. NEW FEATURE: Drawing Filters (Black & White Mode)
+-------------------------------------
+- Add filters to convert the selected image into drawing-friendly styles:
+  a) Black & White (grayscale)
+  b) High-contrast sketch mode
+- Allow switching filters in real time
+- Combine with edge detection if available
+- Provide slider to adjust contrast intensity
+
+Goal:
+Make the image look closer to real pencil drawing for easier tracing.
+
+-------------------------------------
+UI/UX Enhancements:
+-------------------------------------
+- Use smooth animations when showing/hiding controls
+- Keep interface minimal and non-distracting
+- Ensure all controls are accessible but not intrusive
+- Maintain modern design consistency
+
+-------------------------------------
+Performance Requirements:
+-------------------------------------
+- No lag during transformations, filters, or recording
+- Optimize image processing for real-time usage
+
+-------------------------------------
+Goal:
+Transform the app into a professional drawing assistant with precise controls, clean UI, and enhanced creative tools.

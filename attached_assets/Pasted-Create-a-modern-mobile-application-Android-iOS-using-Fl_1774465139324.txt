@@ -1,0 +1,68 @@
+Create a modern mobile application (Android & iOS) using Flutter.
+
+App idea:
+The app is a "Drawing Assistant using Camera Overlay".
+It helps users trace and draw images by overlaying a semi-transparent image on top of the live camera view.
+
+Main Features:
+
+1. Image Input:
+- User can either:
+  a) Upload an image from gallery
+  b) Capture a new image using the camera
+
+2. Camera Overlay Mode:
+- After selecting the image, open the camera screen
+- Display the selected image as a semi-transparent overlay on top of the live camera feed
+- The user should be able to see both:
+  - The real-world surface (paper) through the camera
+  - The image overlay for tracing
+
+3. Overlay Controls:
+- Slider to control opacity (transparency) of the image
+- Pinch to zoom in/out the overlay image
+- Drag to move the image position on screen
+- Rotate the image (optional but preferred)
+
+4. Lock Mode:
+- Add a "Lock Position" button to prevent accidental movement while drawing
+
+5. Auto Edge Detection (NEW FEATURE):
+- Add a feature that converts the selected image into a clean outline (sketch)
+- Use edge detection algorithms (e.g., Canny Edge Detection or similar)
+- Allow the user to toggle between:
+  - Original image
+  - Edge-detected (outline) version
+- Provide a slider to control edge sensitivity / threshold
+- Optimize output to look like a simple drawable sketch (clear lines, minimal noise)
+
+6. UI/UX Design:
+- Clean, minimal, modern UI
+- Single main screen workflow (no complex navigation)
+- Use soft colors and support both dark and light mode
+- Floating action buttons for main actions (upload, capture, start overlay)
+
+7. Performance:
+- Smooth real-time camera rendering
+- No lag while adjusting overlay or applying edge detection
+
+8. Permissions:
+- Handle camera and storage permissions properly
+
+9. Optional Enhancements:
+- Grid overlay option to help with proportions
+- Save screenshot of the overlay result
+- Beginner tips/tutorial overlay
+
+Technical Requirements:
+- Use Flutter
+- Use camera plugin for live preview
+- Use Stack widget to overlay the semi-transparent image on camera preview
+- Use an image processing library (e.g., OpenCV or similar) for edge detection
+- Ensure proper responsiveness for different screen sizes
+
+Goal:
+The app should simulate a tracing experience where users can place their phone over paper and draw by following the transparent overlay or its outline version.
+
+Design Style:
+Modern, minimal, smooth animations, intuitive controls.

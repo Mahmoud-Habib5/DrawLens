@@ -1,0 +1,111 @@
+Enhance and fix the existing Flutter mobile application "Drawing Assistant using Camera Overlay".
+
+Focus on fixing critical issues, adding a user profile system, and improving content organization and user experience.
+
+-------------------------------------
+1. FIX: Video Recording Not Working
+-------------------------------------
+Problem:
+The video recording feature does not respond when the user presses the record button.
+
+Solution:
+- Fix the video recording functionality using a reliable camera plugin
+- Ensure proper initialization of the camera controller before recording
+- Handle permissions correctly (camera + microphone + storage)
+- Add clear start/stop recording logic
+- Show recording state (recording / stopped)
+
+Saving Media:
+- Save recorded videos and captured images locally in app storage
+- Automatically link saved media to the user profile
+- Provide option to export/save media to device gallery
+
+-------------------------------------
+2. NEW FEATURE: User Profile Screen
+-------------------------------------
+Create a dedicated Profile Screen that includes:
+
+User Info:
+- Name
+- Age
+- Gender (Male / Female)
+
+User Media:
+- Section for saved images
+- Section for recorded videos
+- Display media in a grid layout
+- Ability to:
+  - View media in full screen
+  - Delete media
+  - Save/export media to gallery
+
+UI:
+- Clean, modern card-based layout
+- Profile avatar (optional placeholder)
+
+-------------------------------------
+3. NEW FEATURE: Built-in Drawing Templates Library
+-------------------------------------
+Add a collection of preloaded drawable images inside the app.
+
+Categories:
+- Animals
+- Anime
+- Cartoons
+- Fruits
+- People
+- Cars
+
+Requirements:
+- Each category contains at least 10+ high-quality, simple, drawable images
+- Images should be optimized for tracing (clear lines, not overly complex)
+- Allow user to select any template and directly open it in overlay mode
+
+Optional:
+- Add difficulty levels (Easy / Medium / Hard)
+
+-------------------------------------
+4. REDESIGN: Home Screen Layout
+-------------------------------------
+Redesign the main screen to improve usability:
+
+Top Section:
+- Buttons for:
+  - Upload Image from Gallery
+  - Capture Image using Camera
+
+Below:
+- Display Drawing Templates Library
+- Organized into horizontal sections (categories)
+  Example:
+    - Animals (scroll horizontally)
+    - Anime
+    - Cartoons
+    - etc.
+
+Each Category:
+- Show image thumbnails in horizontal scroll
+- Clicking an image opens it in overlay mode
+
+-------------------------------------
+UI/UX Requirements:
+-------------------------------------
+- Modern, minimal, visually clean design
+- Smooth animations between screens
+- Easy navigation between Home and Profile
+- Keep drawing experience distraction-free
+
+-------------------------------------
+Performance & Storage:
+-------------------------------------
+- Efficient local storage handling for images and videos
+- Optimize media loading (lazy loading if needed)
+- Ensure smooth scrolling and fast UI response
+
+-------------------------------------
+Goal:
+Turn the app into a complete drawing assistant platform with:
+- Functional video recording
+- Personal media management (profile)
+- Built-in drawing resources
+- Improved and intuitive home experience

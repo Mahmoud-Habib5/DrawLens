@@ -94,3 +94,21 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+### `artifacts/mobile` (`@workspace/mobile`)
+
+Expo / React Native mobile app: **Drawing Assistant**. Lets users overlay a semi-transparent reference image on a live camera feed for tracing.
+
+**Key screens:**
+- `app/index.tsx` — Home screen: Gallery/Camera buttons, scrollable Template Library (6 categories × 12 images). Navigates to `/overlay?imageUri=…`
+- `app/overlay.tsx` — Camera overlay screen. Receives `imageUri` param. Features: PanResponder drag, scale/rotate buttons, opacity slider, 4 drawing filters (Original / Sketch / B&W / Hi-Con), grid overlay, lock mode, video recording, flash toggle, photo save.
+- `app/profile.tsx` — Profile screen: user info (name/age/gender), saved photos grid, saved videos grid, full-screen viewer with export/delete.
+
+**Key files:**
+- `constants/templates.ts` — 6 categories × 12 templates using picsum.photos seeds
+- `constants/colors.ts` — Amber/dark-navy theme (light + dark)
+- `contexts/AppContext.tsx` — React context for profile + saved media, persisted via AsyncStorage
+
+**Packages:** expo-camera@~17.0.10, expo-media-library, expo-image-picker, expo-haptics, @react-native-async-storage/async-storage, @expo/vector-icons, expo-router
+
+**Design:** Amber primary (`#F5A623`) on dark navy (`#0D0D14`). Inter font. No tab bar — Stack navigation with `headerShown: false`.

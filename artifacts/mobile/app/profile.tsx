@@ -1,4 +1,4 @@
-import { VideoView, useVideoPlayer } from "expo-video";
+import { ResizeMode, Video } from "expo-av";
 import * as MediaLibrary from "expo-media-library";
 import { router } from "expo-router";
 import { Feather, Ionicons } from "@expo/vector-icons";
@@ -48,47 +48,37 @@ function VideoPlayerModal({ item, onClose, onDelete, onSaveTimelapse }: {
 }) {
   const insets = useSafeAreaInsets();
   const [showSpeedPicker, setShowSpeedPicker] = useState(false);
-  const [selectedSpeed, setSelectedSpeed] = useState<number>(item?.playbackRate ?? 2);
+  const [selectedSpeed, setSelectedSpeed] = useState<number>(2);
 
-  const player = useVideoPlayer(
-    item ? { uri: item.uri } : null,
-    (p) => {
-      p.loop = false;
-      p.playbackRate = item?.playbackRate ?? 1;
-    }
-  );
-
-  // Update source + rate when item changes
+  // Reset picker state whenever a new item is opened
   useEffect(() => {
-    if (!player) return;
-    if (item?.uri) {
-      player.replaceCurrentItem({ uri: item.uri });
-      player.playbackRate = item.playbackRate ?? 1;
+    if (item) {
+      setSelectedSpeed(item.playbackRate ?? 2);
+      setShowSpeedPicker(false);
     }
-    setSelectedSpeed(item?.playbackRate ?? 2);
-    setShowSpeedPicker(false);
   }, [item?.id]);
-
-  // Pause on close
-  useEffect(() => {
-    return () => { try { player?.pause(); } catch {} };
-  }, []);
 
   if (!item) return null;
   const isTimelapse = (item.playbackRate ?? 1) > 1;
 
   return (
-    <Modal visible={!!item} animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1, backgroundColor: "#000" }}>
 
-        {/* Video with native controls (play/pause/seek built in) */}
-        <VideoView
-          player={player}
+        {/*
+          key={item.id} forces a full remount when the selected video changes,
+          so expo-av always loads the correct URI without any replaceCurrentItem call.
+        */}
+        <Video
+          key={item.id}
+          source={{ uri: item.uri }}
           style={{ flex: 1 }}
-          contentFit="contain"
-          nativeControls
-          allowsFullscreen
-          allowsPictureInPicture={false}
+          resizeMode={ResizeMode.CONTAIN}
+          useNativeControls
+          shouldPlay
+          isLooping={false}
+          rate={item.playbackRate ?? 1}
+          onError={(e) => console.log("[VideoPlayer] error:", e)}
         />
 
         {/* Top bar */}
@@ -126,10 +116,7 @@ function VideoPlayerModal({ item, onClose, onDelete, onSaveTimelapse }: {
             {SPEEDS.map((speed) => (
               <TouchableOpacity
                 key={speed}
-                onPress={() => {
-                  setSelectedSpeed(speed);
-                  try { player.playbackRate = speed; } catch {}
-                }}
+                onPress={() => setSelectedSpeed(speed)}
                 style={[st.speedRow, { borderColor: selectedSpeed === speed ? "#F5A623" : "rgba(255,255,255,0.15)", backgroundColor: selectedSpeed === speed ? "rgba(245,166,35,0.15)" : "transparent" }]}
               >
                 <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: selectedSpeed === speed ? "#F5A623" : "rgba(255,255,255,0.1)", justifyContent: "center", alignItems: "center" }}>
@@ -145,7 +132,7 @@ function VideoPlayerModal({ item, onClose, onDelete, onSaveTimelapse }: {
               </TouchableOpacity>
             ))}
             <View style={{ flexDirection: "row", gap: 10, marginTop: 20 }}>
-              <TouchableOpacity onPress={() => { setShowSpeedPicker(false); try { player.playbackRate = item.playbackRate ?? 1; } catch {} }} style={[st.sheetBtn, { backgroundColor: "rgba(255,255,255,0.1)", flex: 1 }]}>
+              <TouchableOpacity onPress={() => setShowSpeedPicker(false)} style={[st.sheetBtn, { backgroundColor: "rgba(255,255,255,0.1)", flex: 1 }]}>
                 <Text style={{ color: "#fff", fontFamily: "Inter_600SemiBold", fontSize: 15 }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity

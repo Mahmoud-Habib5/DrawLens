@@ -1,0 +1,92 @@
+Fix the video playback issue in the Profile screen of the mobile application.
+
+Problem:
+When trying to play a recorded video inside the Profile screen, the app throws the error:
+
+"Render Error: player.replaceCurrentItem is not a function (it is undefined)"
+
+The video works correctly in the device gallery but fails inside the app.
+
+-------------------------------------
+Root Cause Analysis:
+-------------------------------------
+- Likely using an incorrect or incompatible video player library
+- Possible misuse of internal player APIs (replaceCurrentItem is undefined)
+- Mixing different video libraries or outdated methods
+- Incorrect player initialization or ref handling
+
+-------------------------------------
+Required Fix:
+-------------------------------------
+
+1. Use a Stable Video Player Library:
+- If using Expo:
+  -> Use "expo-av" Video component ONLY
+- If using React Native CLI:
+  -> Use "react-native-video"
+
+REMOVE any custom or unsupported player logic.
+
+-------------------------------------
+2. Correct Implementation (Expo Example):
+-------------------------------------
+
+- Import:
+  import { Video } from 'expo-av';
+
+- Basic Usage:
+  <Video
+    source={{ uri: videoUri }}
+    useNativeControls
+    resizeMode="contain"
+    shouldPlay={true}
+    style={{ width: '100%', height: 300 }}
+  />
+
+- Do NOT use any low-level player methods like:
+  player.replaceCurrentItem
+
+-------------------------------------
+3. Validate Video URI:
+-------------------------------------
+- Ensure videoUri is:
+  - A valid local file path (file://...)
+  - Not undefined or null
+- Log the URI before rendering
+
+-------------------------------------
+4. Handle Loading & Errors:
+-------------------------------------
+- Add onError handler:
+  onError={(e) => console.log("Video Error:", e)}
+
+- Add loading indicator while video loads
+
+-------------------------------------
+5. Remove Incorrect Player Usage:
+-------------------------------------
+- Search codebase for:
+  "replaceCurrentItem"
+  "player."
+- Remove or refactor any usage of unsupported APIs
+
+-------------------------------------
+6. Ensure Compatibility:
+-------------------------------------
+- Update dependencies:
+  - expo-av (latest version)
+- Rebuild the app after changes
+
+-------------------------------------
+UI Behavior:
+-------------------------------------
+- Tap video → open fullscreen player
+- Show controls (play/pause/seek)
+- Smooth playback without crashes
+
+-------------------------------------
+Goal:
+-------------------------------------
+- Fix the render error completely
+- Ensure all recorded videos play correctly inside the Profile screen
+- Use a stable, supported video player implementation

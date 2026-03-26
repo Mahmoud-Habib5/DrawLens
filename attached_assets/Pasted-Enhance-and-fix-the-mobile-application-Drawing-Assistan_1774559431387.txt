@@ -1,0 +1,112 @@
+Enhance and fix the mobile application "Drawing Assistant using Camera Overlay".
+
+Focus on fixing video playback issues in the profile and adding advanced features like timelapse recording and smart alignment.
+
+-------------------------------------
+1. FIX: Video Not Playing in Profile
+-------------------------------------
+Problem:
+Recorded videos are saved successfully and can be viewed in the device gallery,
+but they do NOT play inside the app's Profile screen.
+
+Root Causes to Investigate:
+- Incorrect video URI or file path used in profile
+- Missing video player component
+- Permissions issue when accessing local files
+- Unsupported video format or codec
+- Not using proper video rendering component
+
+Required Fix:
+- Ensure correct URI is stored after recording (use secure/local file URI)
+- Use a proper video player component:
+  (e.g., expo-av Video or react-native-video)
+- Verify the video file exists before rendering
+- Handle loading and error states properly
+- Add controls: play / pause / seek
+- Ensure compatibility with both Android and iOS
+
+UI:
+- Display videos in grid inside Profile
+- On tap → open full screen video player
+- Smooth playback with controls
+
+-------------------------------------
+2. NEW FEATURE: Timelapse Video Mode
+-------------------------------------
+Goal:
+Allow users to save their drawing videos as accelerated timelapse versions.
+
+Implementation Options:
+
+Option A (Preferred):
+- Record normal video
+- After recording, process video and generate:
+  - 2x speed
+  - 3x speed
+  - 5x speed
+
+Option B:
+- Capture frames at intervals during recording
+
+Requirements:
+- Add option in Profile:
+  "Save as Timelapse"
+- Let user choose speed (2x / 3x / 5x)
+- Save processed video as a new file
+- Keep original video unchanged
+- Show progress indicator while processing
+
+Optional:
+- Add background processing if possible
+
+-------------------------------------
+3. NEW FEATURE: Smart Alignment System
+-------------------------------------
+Goal:
+Help users correctly position paper and stabilize drawing alignment.
+
+Features:
+
+A) Grid Overlay:
+- Display adjustable grid (toggle on/off)
+- Helps with proportions and alignment
+
+B) Corner Pins (Manual Alignment):
+- Allow user to place 4 draggable points (pins) on screen
+- User aligns these points with paper corners
+- Save pin positions
+- Show them as reference markers during drawing
+
+C) Alignment Lock:
+- Once pins are set → lock them
+- Prevent accidental movement
+
+D) Visual Guides:
+- Subtle lines connecting pins (optional)
+- Highlight active alignment
+
+Optional Advanced:
+- Detect rectangle shape (paper) automatically using edge detection
+
+-------------------------------------
+UI/UX Requirements:
+-------------------------------------
+- Clean and minimal UI
+- Pins and grid should not distract while drawing
+- Smooth animations for adding/removing pins
+- Toggle controls for alignment tools
+
+-------------------------------------
+Performance:
+-------------------------------------
+- Timelapse processing should not freeze UI
+- Video playback must be smooth
+- Alignment tools must be lightweight and responsive
+
+-------------------------------------
+Goal:
+-------------------------------------
+Transform the app into a professional drawing assistant with:
+- Fully functional video playback in profile
+- Advanced video features (timelapse)
+- Smart alignment tools for accurate drawing

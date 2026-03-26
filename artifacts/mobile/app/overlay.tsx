@@ -94,6 +94,22 @@ function RecordingBadge({ elapsed }: { elapsed: number }) {
   );
 }
 
+// ─── Corner Pin Line ──────────────────────────────────────────────────────────
+function PinLine({ from, to }: { from: { x: number; y: number }; to: { x: number; y: number } }) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  const cx = from.x + dx / 2;
+  const cy = from.y + dy / 2;
+  return (
+    <View
+      pointerEvents="none"
+      style={{ position: "absolute", width: len, height: 1.5, backgroundColor: "rgba(245,166,35,0.55)", left: cx - len / 2, top: cy, transform: [{ rotate: `${angle}deg` }] }}
+    />
+  );
+}
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function OverlayScreen() {
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
@@ -123,6 +139,57 @@ export default function OverlayScreen() {
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
+
+  // ── Corner pins ──────────────────────────────────────────────────────────
+  const [showPins, setShowPins] = useState(false);
+  const [isPinsLocked, setIsPinsLocked] = useState(false);
+  const isPinsLockedRef = useRef(false);
+  useEffect(() => { isPinsLockedRef.current = isPinsLocked; }, [isPinsLocked]);
+
+  const PIN_INITIAL = [
+    { x: 56,     y: 120 },
+    { x: W - 56, y: 120 },
+    { x: W - 56, y: H - 180 },
+    { x: 56,     y: H - 180 },
+  ];
+  const pinAnims = useRef(PIN_INITIAL.map((p) => new Animated.ValueXY(p))).current;
+  const pinCurrentPos = useRef([...PIN_INITIAL]);
+  const [pinPositions, setPinPositions] = useState([...PIN_INITIAL]);
+
+  const pinResponders = useRef(
+    PIN_INITIAL.map((_, i) =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => !isPinsLockedRef.current,
+        onMoveShouldSetPanResponder: () => !isPinsLockedRef.current,
+        onPanResponderGrant: () => {
+          pinAnims[i].setOffset(pinCurrentPos.current[i]);
+          pinAnims[i].setValue({ x: 0, y: 0 });
+        },
+        onPanResponderMove: Animated.event(
+          [null, { dx: pinAnims[i].x, dy: pinAnims[i].y }],
+          { useNativeDriver: false }
+        ),
+        onPanResponderRelease: (_, gs) => {
+          const newPos = {
+            x: pinCurrentPos.current[i].x + gs.dx,
+            y: pinCurrentPos.current[i].y + gs.dy,
+          };
+          pinCurrentPos.current[i] = newPos;
+          pinAnims[i].flattenOffset();
+          setPinPositions((prev) => prev.map((p, j) => (j === i ? newPos : p)));
+        },
+      })
+    )
+  ).current;
+
+  const resetPins = useCallback(() => {
+    PIN_INITIAL.forEach((p, i) => {
+      pinAnims[i].setValue(p);
+      pinCurrentPos.current[i] = p;
+    });
+    setPinPositions([...PIN_INITIAL]);
+    setIsPinsLocked(false);
+  }, []);
 
   const cameraRef = useRef<CameraView>(null);
   const panAnim = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
@@ -413,6 +480,52 @@ export default function OverlayScreen() {
 
       {showGrid && renderGrid()}
 
+      {/* ── Corner pins alignment ───────────────────────────────────── */}
+      {showPins && (
+        <>
+          {/* Connecting lines between adjacent pins */}
+          {([[0,1],[1,2],[2,3],[3,0]] as [number,number][]).map(([a, b], idx) => (
+            <PinLine key={idx} from={pinPositions[a]} to={pinPositions[b]} />
+          ))}
+
+          {/* Pin handles */}
+          {pinAnims.map((anim, i) => (
+            <Animated.View
+              key={i}
+              style={{
+                position: "absolute",
+                left: -14,
+                top: -14,
+                width: 28, height: 28,
+                borderRadius: 14,
+                backgroundColor: isPinsLocked ? "rgba(239,68,68,0.85)" : "rgba(245,166,35,0.9)",
+                borderWidth: 2,
+                borderColor: "#fff",
+                justifyContent: "center", alignItems: "center",
+                transform: [{ translateX: anim.x }, { translateY: anim.y }],
+                shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.5, shadowRadius: 4, elevation: 8,
+              }}
+              {...(isPinsLocked ? {} : pinResponders[i].panHandlers)}
+            >
+              <Text style={{ color: "#fff", fontSize: 9, fontFamily: "Inter_700Bold" }}>{["TL","TR","BR","BL"][i]}</Text>
+            </Animated.View>
+          ))}
+
+          {/* Pin toolbar: lock + reset */}
+          <View style={{ position: "absolute", top: insets.top + 60, right: 10, gap: 8 }} pointerEvents="box-none">
+            <TouchableOpacity
+              style={[st.sideBtn, isPinsLocked && { backgroundColor: "rgba(239,68,68,0.85)" }]}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setIsPinsLocked(v => !v); }}
+            >
+              <Feather name={isPinsLocked ? "lock" : "unlock"} size={15} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={st.sideBtn} onPress={resetPins}>
+              <Feather name="refresh-cw" size={14} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+
       {/* Overlay */}
       {imageUri ? (
         <Animated.View
@@ -541,6 +654,10 @@ export default function OverlayScreen() {
 
           <TouchableOpacity style={[st.ctrlBtn, showGrid && { backgroundColor: theme.primary }]} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowGrid(v => !v); }}>
             <Feather name="grid" size={19} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[st.ctrlBtn, showPins && { backgroundColor: "#F59E0B" }]} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowPins(v => !v); }}>
+            <Feather name="crosshair" size={19} color="#fff" />
           </TouchableOpacity>
 
           <TouchableOpacity style={[st.ctrlBtn, isLocked && { backgroundColor: theme.danger }]} onPress={toggleLock}>

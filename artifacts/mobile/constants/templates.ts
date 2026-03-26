@@ -1,4 +1,4 @@
-export type Difficulty = "easy" | "medium" | "hard";
+export type Difficulty = "easy" | "medium" | "hard" | "";
 
 export interface TemplateImage {
   id: string;
@@ -25,9 +25,24 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
     icon: "feather",
     color: "#34C759",
     templates: [
-      { id: "a1", name: "Cat", imageUrl: u("cat"), difficulty: "easy" },
-      { id: "a2", name: "Dog", imageUrl: u("dog"), difficulty: "easy" },
-      { id: "a3", name: "Rabbit", imageUrl: u("rabbit"), difficulty: "easy" },
+      {
+        id: "a1",
+        name: "Cat",
+        imageUrl: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131",
+        difficulty: ""
+      },
+      {
+        id: "a2",
+        name: "Dog",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774473191/copy_of__zf3cbt_daa3bd.jpg",
+        difficulty: "easy"
+      },
+      {
+        id: "a3",
+        name: "Rabbit",
+        imageUrl: "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308",
+        difficulty: "easy"
+      },
       { id: "a4", name: "Lion", imageUrl: u("lion"), difficulty: "medium" },
       { id: "a5", name: "Elephant", imageUrl: u("elephant"), difficulty: "medium" },
       { id: "a6", name: "Horse", imageUrl: u("horse"), difficulty: "medium" },
@@ -145,4 +160,5 @@ export const DIFFICULTY_COLORS: Record<Difficulty, string> = {
   easy: "#34C759",
   medium: "#FF9500",
   hard: "#FF3B30",
+  "": "#8E8E93"
 };

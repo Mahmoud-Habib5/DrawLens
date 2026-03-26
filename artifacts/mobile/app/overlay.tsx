@@ -119,6 +119,7 @@ export default function OverlayScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCameraReady, setIsCameraReady] = useState(false);
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
@@ -187,27 +188,43 @@ export default function OverlayScreen() {
   // ── Camera flip ───────────────────────────────────────────────────────────
   const flipCamera = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Camera needs to re-initialise after flip
+    setIsCameraReady(false);
     setFacing((f) => (f === "back" ? "front" : "back"));
   }, []);
 
   // ── Video recording ───────────────────────────────────────────────────────
   const startRecording = useCallback(async () => {
-    if (!cameraRef.current || Platform.OS === "web") return;
+    if (Platform.OS === "web") return;
 
-    // Ensure camera permission
-    if (!cameraPermission?.granted) {
-      const r = await requestCameraPermission();
-      if (!r.granted) return;
+    // Camera ref guard
+    if (!cameraRef.current) {
+      Alert.alert("Camera not ready", "Please wait a moment and try again.");
+      return;
     }
 
-    // Ensure microphone permission
+    // Camera ready guard
+    if (!isCameraReady) {
+      Alert.alert("Camera not ready", "The camera is still initialising. Please wait.");
+      return;
+    }
+
+    // Camera permission
+    if (!cameraPermission?.granted) {
+      const r = await requestCameraPermission();
+      if (!r.granted) {
+        Alert.alert("Camera Permission", "Camera access is required to record video.");
+        return;
+      }
+    }
+
+    // Microphone permission (required for video audio on iOS)
     if (!micPermission?.granted) {
       const r = await requestMicPermission();
       if (!r.granted) {
         Alert.alert(
           "Microphone Required",
-          "Microphone access is needed to record video with audio.",
-          [{ text: "OK" }]
+          "Microphone access is needed to record video with audio. Please enable it in Settings → Privacy → Microphone."
         );
         return;
       }
@@ -215,24 +232,35 @@ export default function OverlayScreen() {
 
     if (!(await ensureMediaPermission())) return;
 
-    setIsRecording(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    setIsRecording(true);
 
     try {
+      // Small delay — iOS camera hardware needs a moment after becoming "ready"
+      await new Promise<void>((res) => setTimeout(res, 350));
+
+      console.log("[Recording] Starting recordAsync…");
       const video = await cameraRef.current.recordAsync({ maxDuration: 300 });
+      console.log("[Recording] Completed. URI:", video?.uri);
+
       if (video?.uri) {
         await MediaLibrary.saveToLibraryAsync(video.uri);
         await addMedia(video.uri, "video");
-        Alert.alert("Video Saved", "Your recording has been saved to the gallery and your profile.");
+        Alert.alert("Video Saved", "Your recording has been saved to your gallery and profile.");
+      } else {
+        console.warn("[Recording] No URI returned.");
       }
     } catch (err: any) {
-      if (!String(err).includes("cancelled")) {
-        Alert.alert("Recording Error", "Could not save the recording. Please try again.");
+      const msg = String(err?.message ?? err);
+      console.error("[Recording] Error:", msg);
+      // Suppress intentional stop signals
+      if (!msg.includes("cancelled") && !msg.includes("stopped") && !msg.includes("aborted")) {
+        Alert.alert("Recording Error", `Could not record video.\n\n${msg}`);
       }
     } finally {
       setIsRecording(false);
     }
-  }, [cameraPermission, micPermission, requestCameraPermission, requestMicPermission, ensureMediaPermission, addMedia]);
+  }, [isCameraReady, cameraPermission, micPermission, requestCameraPermission, requestMicPermission, ensureMediaPermission, addMedia]);
 
   const stopRecording = useCallback(() => {
     if (!cameraRef.current || Platform.OS === "web") return;
@@ -370,12 +398,17 @@ export default function OverlayScreen() {
     <View style={{ flex: 1, backgroundColor: "#000" }}>
       <StatusBar hidden />
 
-      {/* Camera */}
+      {/* Camera — mode="video" is required on iOS for recordAsync() to work */}
       <CameraView
         ref={cameraRef}
         style={StyleSheet.absoluteFill}
         facing={facing}
         enableTorch={flashOn}
+        mode="video"
+        onCameraReady={() => {
+          console.log("[Camera] Ready");
+          setIsCameraReady(true);
+        }}
       />
 
       {showGrid && renderGrid()}
@@ -411,6 +444,14 @@ export default function OverlayScreen() {
       )}
 
       <Toast message="Position Locked" visible={toastVisible} />
+
+      {/* Camera-initialising indicator */}
+      {Platform.OS !== "web" && !isCameraReady && (
+        <View style={{ position: "absolute", top: insets.top + 16, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(0,0,0,0.55)", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 }} pointerEvents="none">
+          <Feather name="loader" size={12} color="rgba(255,255,255,0.7)" />
+          <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontFamily: "Inter_500Medium" }}>Camera initialising…</Text>
+        </View>
+      )}
 
       {/* Recording badge */}
       {isRecording && (
@@ -507,7 +548,15 @@ export default function OverlayScreen() {
           </TouchableOpacity>
 
           {Platform.OS !== "web" && (
-            <TouchableOpacity style={[st.ctrlBtn, isRecording && { backgroundColor: "#EF4444" }]} onPress={toggleRecording}>
+            <TouchableOpacity
+              style={[
+                st.ctrlBtn,
+                isRecording && { backgroundColor: "#EF4444" },
+                !isCameraReady && !isRecording && { opacity: 0.4 },
+              ]}
+              onPress={toggleRecording}
+              disabled={!isCameraReady && !isRecording}
+            >
               <Feather name={isRecording ? "square" : "video"} size={19} color="#fff" />
             </TouchableOpacity>
           )}

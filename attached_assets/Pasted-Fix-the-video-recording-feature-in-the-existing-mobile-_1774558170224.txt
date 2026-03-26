@@ -1,0 +1,83 @@
+Fix the video recording feature in the existing mobile application (React Native / Expo or similar).
+"im using ios"
+
+
+Problem:
+When the user presses the "Record Video" button:
+- The app asks for permissions (camera, microphone)
+- After granting permissions, recording fails with the error:
+  "Recording error: Could not save the recording. Please try again."
+
+-------------------------------------
+Root Causes to Investigate:
+-------------------------------------
+- Camera not properly initialized before recording
+- Missing or incorrect permissions (camera, microphone, storage)
+- No valid file path or directory for saving the video
+- Recording started before camera is ready
+- Incorrect async handling (race condition)
+- Missing error handling for recording promise
+- Platform-specific issues (Android/iOS differences)
+
+-------------------------------------
+Required Fixes:
+-------------------------------------
+
+1. Ensure Permissions:
+- Request and confirm:
+  - Camera permission
+  - Microphone permission
+  - Storage/media library permission
+- Do not start recording unless all permissions are granted
+
+2. Camera Initialization:
+- Ensure camera is fully ready before recording
+- Use a "cameraReady" state flag (onCameraReady callback)
+- Disable record button until camera is ready
+
+3. Fix Recording Logic:
+- Properly call startRecording / recordAsync (depending on library)
+- Await the recording result
+- Add try/catch around recording
+
+Example:
+- Start recording only when cameraRef is valid
+- Stop recording safely and handle result
+
+4. File Saving:
+- Ensure video is saved to a valid directory
+- Use proper APIs (e.g., MediaLibrary or FileSystem)
+- Handle file write permissions
+- Verify returned URI is valid before saving
+
+5. Error Handling:
+- Catch and log detailed errors
+- Show user-friendly message
+- Retry mechanism if recording fails
+
+6. UI/UX Improvements:
+- Show recording indicator (red dot + timer)
+- Disable button while recording
+- Show success message after saving
+
+7. Debugging:
+- Log:
+  - cameraRef state
+  - permission status
+  - returned video URI
+  - error stack
+
+-------------------------------------
+Goal:
+-------------------------------------
+Make video recording:
+- Fully functional
+- Stable
+- Saves correctly to device storage
+- No crashes or silent failures
+
+-------------------------------------
+Bonus:
+-------------------------------------
+- Ensure overlay image is NOT included in recorded video
+- Record only camera feed

@@ -27,31 +27,76 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
     templates: [
       {
         id: "a1",
-        name: "Cat",
-        imageUrl: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131",
-        difficulty: ""
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774563281/Simple_Animal_Sketch_Guide_for_Your_Next_Art_Project_zscwda.jpg",
+        difficulty: "easy"
       },
       {
         id: "a2",
-        name: "Dog",
+        name: "",
         imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774473191/copy_of__zf3cbt_daa3bd.jpg",
-        difficulty: "easy"
+        difficulty: "medium"
       },
       {
         id: "a3",
-        name: "Rabbit",
-        imageUrl: "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774562406/e6a4dffba86f273768ed95b40352707d_qos47i.jpg",
         difficulty: "easy"
       },
-      { id: "a4", name: "Lion", imageUrl: u("lion"), difficulty: "medium" },
-      { id: "a5", name: "Elephant", imageUrl: u("elephant"), difficulty: "medium" },
-      { id: "a6", name: "Horse", imageUrl: u("horse"), difficulty: "medium" },
-      { id: "a7", name: "Fox", imageUrl: u("fox-animal"), difficulty: "easy" },
-      { id: "a8", name: "Bear", imageUrl: u("bear-animal"), difficulty: "medium" },
-      { id: "a9", name: "Owl", imageUrl: u("owl-bird"), difficulty: "hard" },
-      { id: "a10", name: "Tiger", imageUrl: u("tiger-wild"), difficulty: "hard" },
-      { id: "a11", name: "Deer", imageUrl: u("deer-forest"), difficulty: "medium" },
-      { id: "a12", name: "Wolf", imageUrl: u("wolf-animal"), difficulty: "hard" },
+      {
+        id: "a4",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774563279/18_Cute_Doodles_Drawings_Ideas_to_Inspire_Your_Creative_Side_l5isoa.jpg",
+        difficulty: "medium"
+      },
+      {
+        id: "a5",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774563274/Beautiful_Animal_Sketch_Art_bpdgpt.jpg",
+        difficulty: "hard"
+      },
+      {
+        id: "a6",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774561451/Elephants_are_the_largest_existing_land_animal_in_bx7adr.jpg",
+        difficulty: "easy"
+      },
+      {
+        id: "a7",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774563276/%D8%AA%D9%86%D8%B2%D9%8A%D9%84_1_j8tde6.jpg",
+        difficulty: "hard"
+      },
+      {
+        id: "a8",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774562410/%D8%AA%D9%86%D8%B2%D9%8A%D9%84_4_weotmd.jpg",
+        difficulty: "medium"
+      },
+      {
+        id: "a9",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774562227/%D8%AA%D9%86%D8%B2%D9%8A%D9%84_2_ufmqy3.jpg",
+        difficulty: "medium"
+      },
+      {
+        id: "a10",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774562399/4cfbca76087a999ec8547dc49fde98e7_nglv8c.jpg",
+        difficulty: "easy"
+      },
+      {
+        id: "a11",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774562403/%D8%AA%D9%86%D8%B2%D9%8A%D9%84_3_glsdrm.jpg",
+        difficulty: "hard"
+      },
+      {
+        id: "a12",
+        name: "",
+        imageUrl: "https://res.cloudinary.com/dartsmc0i/image/upload/v1774562401/Practice_Drawing_Fish_Cute_Cartoon_Drawings_to_Improve_Your_Skills_fk7esj.jpg",
+        difficulty: "easy"
+      },
     ],
   },
   {
@@ -160,5 +205,5 @@ export const DIFFICULTY_COLORS: Record<Difficulty, string> = {
   easy: "#34C759",
   medium: "#FF9500",
   hard: "#FF3B30",
-  "": "#8E8E93"
+  "": ""
 };

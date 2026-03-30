@@ -139,6 +139,21 @@ export default function OverlayScreen() {
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
+  // ── FIX: use selectedLens to lock the 1x (normal) wide-angle lens ────────
+  // Root cause: on iOS, zoom=0 maps to the device's MINIMUM zoom, which on
+  // iPhones with ultra-wide lenses is the 0.5x fish-eye camera — not 1x.
+  // The zoom prop is a 0–1 percentage of the device's max zoom range, so
+  // there is no universal numeric value that means "1x" across all devices.
+  //
+  // The correct fix is the `selectedLens` prop, which directly targets the
+  // physical lens by name. "wideAngle" is the standard 1x main camera on
+  // every iPhone. We store the selected lens in state so it persists after
+  // flips and re-initialisations.
+  //
+  // selectedLens values (iOS): "wideAngle" | "ultraWideAngle" | "telephoto"
+  // We keep zoom=0 (no additional digital zoom on top of the lens).
+  const [selectedLens, setSelectedLens] = useState<string | undefined>("wideAngle");
+  const [zoom, setZoom] = useState(0);
 
   // ── Corner pins ──────────────────────────────────────────────────────────
   const [showPins, setShowPins] = useState(false);
@@ -258,6 +273,10 @@ export default function OverlayScreen() {
     // Camera needs to re-initialise after flip
     setIsCameraReady(false);
     setFacing((f) => (f === "back" ? "front" : "back"));
+    // FIX: re-assert the wideAngle (1x) lens after every flip.
+    // The front camera typically only has one lens so "wideAngle" is safe there too.
+    setSelectedLens("wideAngle");
+    setZoom(0);
   }, []);
 
   // ── Video recording ───────────────────────────────────────────────────────
@@ -307,7 +326,7 @@ export default function OverlayScreen() {
       await new Promise<void>((res) => setTimeout(res, 350));
 
       console.log("[Recording] Starting recordAsync…");
-      const video = await cameraRef.current.recordAsync({ maxDuration: 300 });
+      const video = await cameraRef.current.recordAsync({ maxDuration: 3600 });
       console.log("[Recording] Completed. URI:", video?.uri);
 
       if (video?.uri) {
@@ -472,9 +491,29 @@ export default function OverlayScreen() {
         facing={facing}
         enableTorch={flashOn}
         mode="video"
+        zoom={zoom}
+        selectedLens={selectedLens}
         onCameraReady={() => {
           console.log("[Camera] Ready");
           setIsCameraReady(true);
+          // FIX: On camera ready, verify "wideAngle" is available and select it.
+          // If for some reason it isn't (e.g. older device with only one lens),
+          // fall back gracefully — do not crash or leave lens unset.
+          if (cameraRef.current && typeof cameraRef.current.getAvailableLensesAsync === "function") {
+            cameraRef.current.getAvailableLensesAsync().then((lenses: string[]) => {
+              console.log("[Camera] Available lenses:", lenses);
+              if (lenses.includes("wideAngle")) {
+                setSelectedLens("wideAngle");
+              } else if (lenses.length > 0) {
+                // On single-lens devices there's only one option — use it
+                setSelectedLens(lenses[0]);
+              }
+            }).catch((e: any) => {
+              console.warn("[Camera] getAvailableLensesAsync failed:", e);
+            });
+          }
+          // Also keep zoom at 0 (no extra digital zoom on top of the lens)
+          setZoom(0);
         }}
       />
 
